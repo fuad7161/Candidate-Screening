@@ -1,11 +1,18 @@
 .application-status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.625rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
+  letter-spacing: 0.02em;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.application-status-badge:hover {
+  transform: scale(1.05);
 }
 
 .status-submitted {
@@ -14,6 +21,13 @@
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
+.status-interview {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Keep under-review as alias for interview */
 .status-under-review {
   background-color: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
