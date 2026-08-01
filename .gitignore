@@ -1,0 +1,76 @@
+# ========================
+# Python / Django
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+.eggs/
+
+# Virtual environments
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# ========================
+# Node / React / Vite
+# ========================
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+*.tsbuildinfo
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========================
+# Docker
+# ========================
+# Don't ignore docker-compose.yml itself
+
+# ========================
+# OS
+# ========================
+.DS_Store
+*.DS_Store
+Desktop.ini
+ehthumbs.db
+docs
+
+# ========================
+# Misc
+# ========================
+*.bak
+*.tmp
+*.temp
+.cache/
+coverage/
+.nyc_output/
