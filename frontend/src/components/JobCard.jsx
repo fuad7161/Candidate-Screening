@@ -78,10 +78,10 @@ function JobCard({ job, showStatus = false, showActions = false, onClose, onEdit
           {showActions && (
             <Link
               to={`/dashboard/jobs/${job.id}/applications`}
-              className="job-action-btn job-action-edit"
+              className="job-action-btn job-action-apps"
               title="Review Applications"
             >
-              👥 Applications ({job.applications_count || 0})
+              👥 Review ({job.applications_count || 0})
             </Link>
           )}
           {showActions && job.status === 'open' && (
@@ -103,7 +103,7 @@ function JobCard({ job, showStatus = false, showActions = false, onClose, onEdit
             </>
           )}
           <Link to={`/jobs/${job.id}`} className="job-action-btn job-action-view">
-            View Details →
+            View →
           </Link>
         </div>
       </div>
