@@ -83,9 +83,9 @@ class JobAPITestCase(TestCase):
         
         # Candidate/public sees open_job_1 and open_job_2, but not closed_job_1
         job_ids = [j['id'] for j in results]
-        self.assertIn(str(self.open_job_1.id), job_ids)
-        self.assertIn(str(self.open_job_2.id), job_ids)
-        self.assertNotIn(str(self.closed_job_1.id), job_ids)
+        self.assertIn(self.open_job_1.id, job_ids)
+        self.assertIn(self.open_job_2.id, job_ids)
+        self.assertNotIn(self.closed_job_1.id, job_ids)
 
     def test_recruiter_mine_filter_returns_only_own_jobs(self):
         self.client.force_authenticate(user=self.recruiter_user_1)
@@ -94,9 +94,9 @@ class JobAPITestCase(TestCase):
         results = response.data.get('results', response.data)
         
         job_ids = [j['id'] for j in results]
-        self.assertIn(str(self.open_job_1.id), job_ids)
-        self.assertIn(str(self.closed_job_1.id), job_ids)
-        self.assertNotIn(str(self.open_job_2.id), job_ids)
+        self.assertIn(self.open_job_1.id, job_ids)
+        self.assertIn(self.closed_job_1.id, job_ids)
+        self.assertNotIn(self.open_job_2.id, job_ids)
 
     def test_create_job_by_recruiter(self):
         self.client.force_authenticate(user=self.recruiter_user_1)
