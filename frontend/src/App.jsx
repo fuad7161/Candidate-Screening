@@ -5,36 +5,14 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
+import JobsListPage from './pages/JobsListPage';
+import JobDetailPage from './pages/JobDetailPage';
+import RecruiterDashboardPage from './pages/RecruiterDashboardPage';
+import JobFormPage from './pages/JobFormPage';
+import MyApplicationsPage from './pages/MyApplicationsPage';
+import ApplicationsReviewPage from './pages/ApplicationsReviewPage';
 import { ProtectedRoute, RecruiterRoute, CandidateRoute } from './routes';
 import './App.css';
-
-// Placeholder views for phase 3-6 to verify auth routing
-const RecruiterDashboardPlaceholder = () => (
-  <div style={{ padding: '2rem', textAlign: 'center' }}>
-    <h2>Recruiter Dashboard</h2>
-    <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
-      Welcome! You are logged in as a <strong>Recruiter</strong>. Job management features (Phase 3 & 4) will be rendered here.
-    </p>
-  </div>
-);
-
-const CandidateApplicationsPlaceholder = () => (
-  <div style={{ padding: '2rem', textAlign: 'center' }}>
-    <h2>My Applications</h2>
-    <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
-      Welcome! You are logged in as a <strong>Candidate</strong>. Application tracking features (Phase 5 & 6) will be rendered here.
-    </p>
-  </div>
-);
-
-const JobsListPlaceholder = () => (
-  <div style={{ padding: '2rem', textAlign: 'center' }}>
-    <h2>Open Job Postings</h2>
-    <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
-      Job postings list page. Job management UI (Phase 4) will be rendered here.
-    </p>
-  </div>
-);
 
 function App() {
   return (
@@ -46,17 +24,20 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/jobs" element={<JobsListPlaceholder />} />
+            <Route path="/jobs" element={<JobsListPage />} />
+            <Route path="/jobs/:id" element={<JobDetailPage />} />
 
             {/* Recruiter-only Routes */}
             <Route element={<RecruiterRoute />}>
-              <Route path="/dashboard" element={<RecruiterDashboardPlaceholder />} />
-              <Route path="/dashboard/jobs/new" element={<RecruiterDashboardPlaceholder />} />
+              <Route path="/dashboard" element={<RecruiterDashboardPage />} />
+              <Route path="/dashboard/jobs/new" element={<JobFormPage />} />
+              <Route path="/dashboard/jobs/:id/edit" element={<JobFormPage />} />
+              <Route path="/dashboard/jobs/:id/applications" element={<ApplicationsReviewPage />} />
             </Route>
 
             {/* Candidate-only Routes */}
             <Route element={<CandidateRoute />}>
-              <Route path="/my-applications" element={<CandidateApplicationsPlaceholder />} />
+              <Route path="/my-applications" element={<MyApplicationsPage />} />
             </Route>
 
             {/* General Protected Routes */}

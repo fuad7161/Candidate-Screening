@@ -1,0 +1,74 @@
+.my-applications-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.application-card {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.application-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.application-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.application-job-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.application-job-title a {
+  color: #f1f5f9;
+  text-decoration: none;
+}
+
+.application-job-title a:hover {
+  color: #818cf8;
+}
+
+.application-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+}
+
+.resume-link-inline {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.resume-link-inline:hover {
+  text-decoration: underline;
+}
+
+.application-cover-letter-preview {
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #6366f1;
+  font-style: italic;
+}
