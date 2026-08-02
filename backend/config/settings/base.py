@@ -113,3 +113,40 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',') if origin.strip()]
 
 AUTH_USER_MODEL = 'authentication.User'
+
+# Email verification
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend',
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@candidatescreening.com')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+EMAIL_VERIFICATION_REQUIRED = os.environ.get(
+    'EMAIL_VERIFICATION_REQUIRED', 'True'
+).lower() in ('true', '1', 'yes')
+EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = int(
+    os.environ.get('EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS', 24)
+)
+
+# MinIO resume storage
+MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', 'localhost:9000')
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', 'minioadmin123')
+MINIO_BUCKET_NAME = os.environ.get('MINIO_BUCKET_NAME', 'candidate-screening-resumes')
+MINIO_USE_SSL = os.environ.get('MINIO_USE_SSL', 'False').lower() in ('true', '1', 'yes')
+MINIO_PUBLIC_URL = os.environ.get('MINIO_PUBLIC_URL', 'http://localhost:9000').rstrip('/')
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+MAX_RESUME_SIZE = 5 * 1024 * 1024
+ALLOWED_RESUME_EXTENSIONS = ['.pdf', '.doc', '.docx']
+ALLOWED_RESUME_MIME_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+PRESIGNED_URL_EXPIRY_SECONDS = 900
