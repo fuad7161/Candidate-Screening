@@ -1,13 +1,16 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
 from apps.recruiters.models import RecruiterProfile
-from apps.candidates.models import CandidateProfile, Application
+from apps.candidates.models import CandidateProfile, Application, FileUpload
 from apps.jobs.models import Job
 
 User = get_user_model()
 
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class ApplicationAPITestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -208,3 +211,86 @@ class ApplicationAPITestCase(TestCase):
         # Valid transition: interview -> hired
         response = self.client.patch(f'/api/applications/{app.id}/status/', {"status": "hired"}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch('apps.candidates.views.EmailService.send_status_update_email')
+    def test_status_update_sends_email_without_blocking_response(self, send_email):
+        app = Application.objects.create(
+            job=self.open_job,
+            candidate=self.candidate_profile_1,
+            resume_url='https://example.com/resume.pdf',
+        )
+        self.client.force_authenticate(user=self.recruiter_user_1)
+
+        response = self.client.patch(
+            f'/api/applications/{app.id}/status/',
+            {'status': 'shortlisted'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['email_notification_sent'])
+        send_email.assert_called_once_with(
+            candidate_name=self.candidate_profile_1.full_name,
+            candidate_email=self.candidate_user_1.email,
+            job_title=self.open_job.title,
+            new_status='shortlisted',
+        )
+
+    @patch('apps.candidates.views.MinIOStorage')
+    def test_direct_resume_upload_and_application(self, storage_class):
+        storage = storage_class.return_value
+        storage.upload_file.return_value = 'http://localhost:9000/bucket/resume.pdf'
+        storage.generate_presigned_download_url.return_value = 'http://signed.example/resume.pdf'
+        resume = SimpleUploadedFile(
+            'resume.pdf', b'%PDF-1.4 test resume', content_type='application/pdf'
+        )
+        self.client.force_authenticate(user=self.candidate_user_1)
+
+        upload_response = self.client.post('/api/upload-resume/', {'file': resume}, format='multipart')
+
+        self.assertEqual(upload_response.status_code, status.HTTP_201_CREATED)
+        upload = FileUpload.objects.get(pk=upload_response.data['id'])
+        self.assertEqual(upload.user, self.candidate_user_1)
+
+        with patch(
+            'apps.candidates.serializers.MinIOStorage.generate_presigned_download_url',
+            return_value='http://signed.example/resume.pdf',
+        ):
+            apply_response = self.client.post(
+                f'/api/jobs/{self.open_job.id}/apply/',
+                {'resume_file': str(upload.id), 'cover_note': 'My note'},
+                format='json',
+            )
+        self.assertEqual(apply_response.status_code, status.HTTP_201_CREATED)
+        application = Application.objects.get(pk=apply_response.data['id'])
+        self.assertEqual(application.resume_file, upload)
+
+    @patch('apps.candidates.views.MinIOStorage')
+    def test_resume_upload_rejects_invalid_extension(self, storage_class):
+        self.client.force_authenticate(user=self.candidate_user_1)
+        resume = SimpleUploadedFile('resume.exe', b'bad', content_type='application/octet-stream')
+
+        response = self.client.post('/api/upload-resume/', {'file': resume}, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        storage_class.assert_not_called()
+
+    def test_candidate_cannot_apply_with_another_users_upload(self):
+        upload = FileUpload.objects.create(
+            user=self.candidate_user_2,
+            file_type='resume',
+            object_name='resumes/other.pdf',
+            file_url='http://localhost:9000/bucket/other.pdf',
+            file_name='other.pdf',
+            file_size=100,
+            mime_type='application/pdf',
+        )
+        self.client.force_authenticate(user=self.candidate_user_1)
+
+        response = self.client.post(
+            f'/api/jobs/{self.open_job.id}/apply/',
+            {'resume_file': str(upload.id)},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
