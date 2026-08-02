@@ -14,7 +14,7 @@ class UserMeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'role', 'full_name', 'company_name', 'phone']
+        fields = ['id', 'email', 'role', 'is_email_verified', 'full_name', 'company_name', 'phone']
 
     def get_full_name(self, obj):
         if obj.role == 'recruiter' and hasattr(obj, 'recruiter_profile'):
@@ -99,6 +99,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'id': str(self.user.id),
             'role': self.user.role,
             'email': self.user.email,
-            'full_name': full_name
+            'full_name': full_name,
+            'is_email_verified': self.user.is_email_verified,
         }
         return data
