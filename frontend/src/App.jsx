@@ -1,17 +1,23 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import MainLayout from './layouts/MainLayout';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import NotFoundPage from './pages/NotFoundPage';
 import JobsListPage from './pages/JobsListPage';
 import JobDetailPage from './pages/JobDetailPage';
 import RecruiterDashboardPage from './pages/RecruiterDashboardPage';
 import JobFormPage from './pages/JobFormPage';
 import MyApplicationsPage from './pages/MyApplicationsPage';
 import ApplicationsReviewPage from './pages/ApplicationsReviewPage';
-import { ProtectedRoute, RecruiterRoute, CandidateRoute } from './routes';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import {
+  ProtectedRoute,
+  RecruiterRoute,
+  CandidateRoute,
+  GuestRoute,
+  UnknownRoute,
+} from './routes';
 import './App.css';
 
 function App() {
@@ -22,8 +28,11 @@ function App() {
           <Route element={<MainLayout />}>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route element={<GuestRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/jobs" element={<JobsListPage />} />
             <Route path="/jobs/:id" element={<JobDetailPage />} />
 
@@ -45,7 +54,7 @@ function App() {
               {/* Additional authenticated routes will be added in subsequent phases */}
             </Route>
 
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="*" element={<UnknownRoute />} />
           </Route>
         </Routes>
       </Router>
