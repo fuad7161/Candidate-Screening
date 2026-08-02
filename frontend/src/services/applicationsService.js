@@ -11,6 +11,20 @@ export const applicationsService = {
     return response.data;
   },
 
+  async uploadResume(file, onProgress) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/upload-resume/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (event) => {
+        if (event.total && onProgress) {
+          onProgress(Math.round((event.loaded * 100) / event.total));
+        }
+      },
+    });
+    return response.data;
+  },
+
   /**
    * List logged-in candidate's applications (Candidate only).
    */
@@ -40,7 +54,7 @@ export const applicationsService = {
   /**
    * Update application status (Recruiter job owner only).
    * @param {number|string} id
-   * @param {string} status - 'submitted' | 'under_review' | 'shortlisted' | 'rejected' | 'hired'
+   * @param {string} status - 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
    */
   async updateStatus(id, status) {
     const response = await api.patch(`/applications/${id}/status/`, { status });

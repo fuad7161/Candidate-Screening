@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import jobsService from '../services/jobsService';
 import JobCard from '../components/JobCard';
 import Modal from '../components/Modal';
-import useAuth from '../hooks/useAuth';
 import '../styles/RecruiterDashboard.css';
 
 function RecruiterDashboardPage() {
@@ -19,7 +18,7 @@ function RecruiterDashboardPage() {
 
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -36,11 +35,11 @@ function RecruiterDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, statusFilter]);
 
   useEffect(() => {
     fetchJobs();
-  }, [currentPage, statusFilter]);
+  }, [fetchJobs]);
 
   const handleCloseJob = async () => {
     if (!closeTarget) return;

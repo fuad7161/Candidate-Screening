@@ -21,6 +21,7 @@ function ApplicationsReviewPage() {
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   const [statusError, setStatusError] = useState(null);
+  const [statusMessage, setStatusMessage] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,10 +48,16 @@ function ApplicationsReviewPage() {
   const handleStatusChange = async (appId, newStatus) => {
     setUpdatingId(appId);
     setStatusError(null);
+    setStatusMessage(null);
     try {
       const updatedApp = await applicationsService.updateStatus(appId, newStatus);
       setApplications((prev) =>
         prev.map((app) => (app.id === appId ? { ...app, status: updatedApp.status } : app))
+      );
+      setStatusMessage(
+        updatedApp.email_notification_sent
+          ? 'Status updated and the candidate was notified by email.'
+          : 'Status updated, but the email notification could not be sent.'
       );
     } catch (err) {
       console.error('Failed to update status:', err);
@@ -103,6 +110,7 @@ function ApplicationsReviewPage() {
 
       {error && <div className="error-alert">{error}</div>}
       {statusError && <div className="error-alert">{statusError}</div>}
+      {statusMessage && <div className="info-alert">{statusMessage}</div>}
 
       {applications.length === 0 && !error ? (
         <div className="empty-state">

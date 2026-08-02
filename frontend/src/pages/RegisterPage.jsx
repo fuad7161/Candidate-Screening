@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import authService from '../services/authService';
 import '../styles/AuthPages.css';
 
 function RegisterPage() {
@@ -14,10 +15,10 @@ function RegisterPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [registration, setRegistration] = useState(null);
+  const [resendState, setResendState] = useState({ loading: false, message: '' });
 
   const { register } = useAuth();
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -33,12 +34,8 @@ function RegisterPage() {
     };
 
     try {
-      await register(payload);
-      if (role === 'recruiter') {
-        navigate('/dashboard', { replace: true });
-      } else {
-        navigate('/jobs', { replace: true });
-      }
+      const result = await register(payload);
+      setRegistration(result);
     } catch (err) {
       console.error('Registration error:', err);
       const apiError = err.response?.data?.error;
@@ -54,6 +51,37 @@ function RegisterPage() {
       setSubmitting(false);
     }
   };
+
+  const resendVerification = async () => {
+    setResendState({ loading: true, message: '' });
+    try {
+      const result = await authService.resendVerification(email);
+      setResendState({ loading: false, message: result.message });
+    } catch (err) {
+      setResendState({
+        loading: false,
+        message: err.response?.data?.error?.message || 'Could not resend the verification email.',
+      });
+    }
+  };
+
+  if (registration) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card verification-card">
+          <div className="verification-icon">✉</div>
+          <h1 className="auth-title">Check your inbox</h1>
+          <p className="verification-message success">{registration.message}</p>
+          <p className="auth-subtitle">We sent the link to <strong>{email}</strong>. It expires in {registration.verification_expiry_hours} hours.</p>
+          {resendState.message && <div className="info-alert">{resendState.message}</div>}
+          <button className="auth-submit-btn" onClick={resendVerification} disabled={resendState.loading}>
+            {resendState.loading ? 'Sending…' : 'Resend verification email'}
+          </button>
+          <div className="auth-footer"><Link to="/login">Continue to sign in</Link></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">

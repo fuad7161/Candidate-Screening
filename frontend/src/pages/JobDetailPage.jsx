@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import jobsService from '../services/jobsService';
 import applicationsService from '../services/applicationsService';
 import useAuth from '../hooks/useAuth';
@@ -17,7 +17,6 @@ const EMPLOYMENT_TYPE_LABELS = {
 
 function JobDetailPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user, isAuthenticated, role } = useAuth();
 
   const [job, setJob] = useState(null);
@@ -261,4 +260,3 @@ function JobDetailPage() {
 }
 
 export default JobDetailPage;
-

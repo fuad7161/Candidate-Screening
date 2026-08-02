@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import authService from '../services/authService';
 import '../styles/AuthPages.css';
 
 function LoginPage() {
@@ -9,6 +10,8 @@ function LoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [unverifiedUser, setUnverifiedUser] = useState(null);
+  const [resendMessage, setResendMessage] = useState('');
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -25,6 +28,10 @@ function LoginPage() {
     try {
       const result = await login({ email, password });
       const userRole = result.user?.role;
+      if (result.user?.is_email_verified === false) {
+        setUnverifiedUser(result.user);
+        return;
+      }
       
       // Redirect based on role if default home was target
       if (from === '/') {
@@ -52,6 +59,20 @@ function LoginPage() {
     }
   };
 
+  const continueToApp = () => {
+    navigate(unverifiedUser?.role === 'recruiter' ? '/dashboard' : '/jobs', { replace: true });
+  };
+
+  const resendVerification = async () => {
+    setResendMessage('');
+    try {
+      const data = await authService.resendVerification(unverifiedUser.email);
+      setResendMessage(data.message);
+    } catch (err) {
+      setResendMessage(err.response?.data?.error?.message || 'Could not resend verification email.');
+    }
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -61,8 +82,19 @@ function LoginPage() {
         </div>
 
         {errorMsg && <div className="error-alert">{errorMsg}</div>}
+        {unverifiedUser && (
+          <div className="warning-alert">
+            <strong>Your email is not verified.</strong>
+            <span> Check your inbox, or request a new verification link.</span>
+            {resendMessage && <p>{resendMessage}</p>}
+            <div className="verification-actions">
+              <button type="button" className="btn btn-outline btn-sm" onClick={resendVerification}>Resend email</button>
+              <button type="button" className="btn btn-primary btn-sm" onClick={continueToApp}>Continue for now</button>
+            </div>
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
+        {!unverifiedUser && <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -102,7 +134,7 @@ function LoginPage() {
           >
             {submitting ? 'Signing in...' : 'Sign In'}
           </button>
-        </form>
+        </form>}
 
         <div className="auth-footer">
           Don't have an account? <Link to="/register">Register here</Link>

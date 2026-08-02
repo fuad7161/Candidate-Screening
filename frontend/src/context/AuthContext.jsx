@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import authService from '../services/authService';
 
+// oxlint-disable-next-line react/only-export-components
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -56,12 +57,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
-    const data = await authService.register(userData);
-    // After registration, auto login
-    return await login({
-      email: userData.email,
-      password: userData.password,
-    });
+    return authService.register(userData);
   };
 
   const logout = () => {
