@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Verify your email</title></head>
+<body style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937;background:#f1f5f9;padding:24px">
+  <div style="max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden">
+    <div style="background:#4f46e5;color:#fff;padding:24px;text-align:center"><h1>Welcome!</h1></div>
+    <div style="padding:28px">
+      <p>Hi {{ full_name }},</p>
+      <p>Thanks for joining Candidate Screening. Verify {{ email }} to finish setting up your account.</p>
+      <p style="text-align:center;margin:30px 0"><a href="{{ verification_url }}" style="background:#4f46e5;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none">Verify email address</a></p>
+      <p>This link expires in {{ expiry_hours }} hours. If you did not create this account, you can ignore this email.</p>
+      <p style="font-size:12px;color:#64748b;word-break:break-all">{{ verification_url }}</p>
+    </div>
+  </div>
+</body>
+</html>
