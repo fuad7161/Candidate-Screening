@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import applicationsService from '../services/applicationsService';
+import ResumeUpload from './ResumeUpload';
 import './ApplyForm.css';
 
 function ApplyForm({ jobId, onSuccess }) {
-  const [resumeUrl, setResumeUrl] = useState('');
+  const [resumeUpload, setResumeUpload] = useState(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -14,26 +15,26 @@ function ApplyForm({ jobId, onSuccess }) {
     setError('');
     setFieldErrors({});
 
-    if (!resumeUrl.trim()) {
-      setFieldErrors({ resume_url: ['Resume URL is required.'] });
+    if (!resumeUpload) {
+      setFieldErrors({ resume_file: ['Upload your resume before submitting.'] });
       return;
     }
 
     setSubmitting(true);
     try {
       const data = await applicationsService.applyToJob(jobId, {
-        resume_url: resumeUrl.trim(),
-        cover_letter: coverLetter.trim(),
+        resume_file: resumeUpload.id,
+        cover_note: coverLetter.trim(),
       });
       if (onSuccess) onSuccess(data);
     } catch (err) {
       console.error('Failed to submit application:', err);
       if (err.response?.status === 409) {
         setError('You have already applied for this job.');
+      } else if (err.response?.data?.error?.fields && Object.keys(err.response.data.error.fields).length) {
+        setFieldErrors(err.response.data.error.fields);
       } else if (err.response?.data?.error?.message) {
         setError(err.response.data.error.message);
-      } else if (err.response?.data?.resume_url) {
-        setFieldErrors({ resume_url: err.response.data.resume_url });
       } else if (err.response?.data) {
         setFieldErrors(err.response.data);
       } else {
@@ -50,38 +51,34 @@ function ApplyForm({ jobId, onSuccess }) {
       {error && <div className="error-alert">{error}</div>}
       <form onSubmit={handleSubmit} className="apply-form">
         <div className="form-group">
-          <label htmlFor="resume_url">
-            Resume URL <span className="required">*</span>
+          <label htmlFor="resume-file">
+            Resume <span className="required">*</span>
           </label>
-          <input
-            id="resume_url"
-            type="url"
-            className={`form-control ${fieldErrors.resume_url ? 'is-invalid' : ''}`}
-            placeholder="https://drive.google.com/your-resume.pdf"
-            value={resumeUrl}
-            onChange={(e) => setResumeUrl(e.target.value)}
+          <ResumeUpload
             disabled={submitting}
-            required
+            onUploadSuccess={(upload) => {
+              setResumeUpload(upload);
+              setFieldErrors((previous) => ({ ...previous, resume_file: undefined }));
+            }}
           />
-          {fieldErrors.resume_url && (
-            <span className="field-error">{fieldErrors.resume_url.join(' ')}</span>
+          {fieldErrors.resume_file && (
+            <span className="field-error">{fieldErrors.resume_file.join(' ')}</span>
           )}
-          <span className="form-help">Link to your PDF resume (Google Drive, Dropbox, LinkedIn, etc.)</span>
         </div>
 
         <div className="form-group">
           <label htmlFor="cover_letter">Cover Letter (Optional)</label>
           <textarea
             id="cover_letter"
-            className={`form-control ${fieldErrors.cover_letter ? 'is-invalid' : ''}`}
+            className={`form-control ${fieldErrors.cover_note ? 'is-invalid' : ''}`}
             placeholder="Tell the recruiter why you're a great fit for this role..."
             rows="4"
             value={coverLetter}
             onChange={(e) => setCoverLetter(e.target.value)}
             disabled={submitting}
           />
-          {fieldErrors.cover_letter && (
-            <span className="field-error">{fieldErrors.cover_letter.join(' ')}</span>
+          {fieldErrors.cover_note && (
+            <span className="field-error">{fieldErrors.cover_note.join(' ')}</span>
           )}
         </div>
 
